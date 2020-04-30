@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Mon Apr 27 17:47:08 EEST 2020","Mon Apr 27 17:47:14 EEST 2020","5438","test_framework","test_user_interface","TestSuiteUI","","","test_main_page_initialization[chrome]",""

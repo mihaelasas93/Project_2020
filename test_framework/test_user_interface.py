@@ -1,5 +1,6 @@
 import pytest
 import selenium
+import time
 from common_files.test_web_driver import TestBrowser
 
 
@@ -13,6 +14,8 @@ class TestSuiteUI(TestBrowser):
         self.driver.get(self.html_address_main_page)
         assert self.driver.title == "My Store"
 
+
+'''
     @pytest.mark.main_page
     @pytest.mark.user_interface_suite
     @pytest.mark.parametrize("item_name,item_xpath", [("Woman", '//*[@id = "block_top_menu"]/ul/li[1]/a'),
@@ -36,6 +39,8 @@ class TestSuiteUI(TestBrowser):
         except Exception:
             value_found = False
         assert value_found == True, (item_name, "item was not found.")
+
+
 
     @pytest.mark.main_page
     @pytest.mark.user_interface_suite
@@ -84,3 +89,11 @@ class TestSuiteUI(TestBrowser):
         self.driver.set_window_size(500, 500)
         values = self.driver.get_window_size()
         assert values['height'] == 500 and values['width'] == 500
+'''
+
+
+def test_page_contact(self):
+    self.driver.get(self.html_address_main_page)
+    self.driver.find_element_by_xpath('//*[@id="contact-link"]/a').click()
+    time.sleep(3)  # page transition
+    assert self.driver.title == "Contact - My Store"

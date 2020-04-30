@@ -1,0 +1,295 @@
+{
+  "020e885d4fedf87c9b6ffe71edc703fc" : {
+    "statistic" : {
+      "failed" : 7,
+      "broken" : 0,
+      "skipped" : 0,
+      "passed" : 0,
+      "unknown" : 0,
+      "total" : 7
+    },
+    "items" : [ {
+      "uid" : "cc716b1a8b542815",
+      "reportUrl" : "http://localhost:8080/job/test/63/allure/#testresult/cc716b1a8b542815",
+      "status" : "failed",
+      "statusDetails" : "AssertionError: assert 'Authentication failed.' == 'The acount was locked.'\n  - The acount was locked.\n  + Authentication failed.",
+      "time" : {
+        "start" : 1587916292731,
+        "stop" : 1587916354767,
+        "duration" : 62036
+      }
+    }, {
+      "uid" : "2b4c31c28fcb99cd",
+      "reportUrl" : "http://localhost:8080/job/test/62/allure/#testresult/2b4c31c28fcb99cd",
+      "status" : "failed",
+      "statusDetails" : "AssertionError: assert 'Authentication failed.' == 'The acount was locked.'\n  - The acount was locked.\n  + Authentication failed.",
+      "time" : {
+        "start" : 1587916292731,
+        "stop" : 1587916354767,
+        "duration" : 62036
+      }
+    }, {
+      "uid" : "fa7e7784960a8c7e",
+      "reportUrl" : "http://localhost:8080/job/test/61/allure/#testresult/fa7e7784960a8c7e",
+      "status" : "failed",
+      "statusDetails" : "AssertionError: assert 'Authentication failed.' == 'The acount was locked.'\n  - The acount was locked.\n  + Authentication failed.",
+      "time" : {
+        "start" : 1587916292731,
+        "stop" : 1587916354767,
+        "duration" : 62036
+      }
+    }, {
+      "uid" : "b6b2f928c42fab9f",
+      "reportUrl" : "http://localhost:8080/job/test/60/allure/#testresult/b6b2f928c42fab9f",
+      "status" : "failed",
+      "statusDetails" : "AssertionError: assert 'Authentication failed.' == 'The acount was locked.'\n  - The acount was locked.\n  + Authentication failed.",
+      "time" : {
+        "start" : 1587915435043,
+        "stop" : 1587915498388,
+        "duration" : 63345
+      }
+    }, {
+      "uid" : "b712497bc1137506",
+      "reportUrl" : "http://localhost:8080/job/test/58/allure/#testresult/b712497bc1137506",
+      "status" : "failed",
+      "statusDetails" : "AssertionError: assert 'Authentication failed.' == 'The acount was locked.'\n  - The acount was locked.\n  + Authentication failed.",
+      "time" : {
+        "start" : 1587914368004,
+        "stop" : 1587914430825,
+        "duration" : 62821
+      }
+    }, {
+      "uid" : "187260ab84036366",
+      "reportUrl" : "http://localhost:8080/job/test/57/allure/#testresult/187260ab84036366",
+      "status" : "failed",
+      "statusDetails" : "AssertionError: assert 'Authentication failed.' == 'The acount was locked.'\n  - The acount was locked.\n  + Authentication failed.",
+      "time" : {
+        "start" : 1587914206056,
+        "stop" : 1587914269698,
+        "duration" : 63642
+      }
+    }, {
+      "uid" : "3156416b7dcbf3f3",
+      "reportUrl" : "http://localhost:8080/job/test/56/allure/#testresult/3156416b7dcbf3f3",
+      "status" : "failed",
+      "statusDetails" : "AssertionError: assert 'Authentication failed.' == 'The acount was locked.'\n  - The acount was locked.\n  + Authentication failed.",
+      "time" : {
+        "start" : 1587913781664,
+        "stop" : 1587913845044,
+        "duration" : 63380
+      }
+    } ]
+  },
+  "29455fe3e1c32fb48d1f3afb19d83db6" : {
+    "statistic" : {
+      "failed" : 0,
+      "broken" : 1,
+      "skipped" : 0,
+      "passed" : 0,
+      "unknown" : 0,
+      "total" : 1
+    },
+    "items" : [ {
+      "uid" : "47b32437b9885fca",
+      "reportUrl" : "http://localhost:8080/job/test/50/allure/#testresult/47b32437b9885fca",
+      "status" : "broken",
+      "statusDetails" : "_pytest.fixtures.FixtureLookupError: ('self', <FixtureRequest for <Function test_page_contact>>)",
+      "time" : {
+        "start" : 1587912820704,
+        "stop" : 1587912820704,
+        "duration" : 0
+      }
+    } ]
+  },
+  "0eb6ce744dce3490d5566f1adf60279d" : {
+    "statistic" : {
+      "failed" : 0,
+      "broken" : 0,
+      "skipped" : 0,
+      "passed" : 43,
+      "unknown" : 0,
+      "total" : 43
+    },
+    "items" : [ {
+      "uid" : "bdaba70e381ec3da",
+      "reportUrl" : "http://localhost:8080/job/test/96/allure/#testresult/bdaba70e381ec3da",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587998273004,
+        "stop" : 1587998276779,
+        "duration" : 3775
+      }
+    }, {
+      "uid" : "a2753988c9f16f19",
+      "reportUrl" : "http://localhost:8080/job/test/95/allure/#testresult/a2753988c9f16f19",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587998163692,
+        "stop" : 1587998167842,
+        "duration" : 4150
+      }
+    }, {
+      "uid" : "59cff8dfd226f36f",
+      "reportUrl" : "http://localhost:8080/job/test/94/allure/#testresult/59cff8dfd226f36f",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587998029857,
+        "stop" : 1587998033568,
+        "duration" : 3711
+      }
+    }, {
+      "uid" : "8ef891fc1813e012",
+      "reportUrl" : "http://localhost:8080/job/test/93/allure/#testresult/8ef891fc1813e012",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587997864250,
+        "stop" : 1587997867924,
+        "duration" : 3674
+      }
+    }, {
+      "uid" : "64e97801e847ea43",
+      "reportUrl" : "http://localhost:8080/job/test/92/allure/#testresult/64e97801e847ea43",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587997821459,
+        "stop" : 1587997825281,
+        "duration" : 3822
+      }
+    }, {
+      "uid" : "26a031ab3430b054",
+      "reportUrl" : "http://localhost:8080/job/test/91/allure/#testresult/26a031ab3430b054",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587997770750,
+        "stop" : 1587997774642,
+        "duration" : 3892
+      }
+    }, {
+      "uid" : "72c2880696e2d2e0",
+      "reportUrl" : "http://localhost:8080/job/test/90/allure/#testresult/72c2880696e2d2e0",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587997725364,
+        "stop" : 1587997728857,
+        "duration" : 3493
+      }
+    }, {
+      "uid" : "d641fc07e3eb5c9a",
+      "reportUrl" : "http://localhost:8080/job/test/89/allure/#testresult/d641fc07e3eb5c9a",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587997672757,
+        "stop" : 1587997676578,
+        "duration" : 3821
+      }
+    }, {
+      "uid" : "1d82d3da5579a477",
+      "reportUrl" : "http://localhost:8080/job/test/88/allure/#testresult/1d82d3da5579a477",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587997575671,
+        "stop" : 1587997580267,
+        "duration" : 4596
+      }
+    }, {
+      "uid" : "efeb655b676ef545",
+      "reportUrl" : "http://localhost:8080/job/test/87/allure/#testresult/efeb655b676ef545",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587997495066,
+        "stop" : 1587997498932,
+        "duration" : 3866
+      }
+    }, {
+      "uid" : "958faa645022d23d",
+      "reportUrl" : "http://localhost:8080/job/test/86/allure/#testresult/958faa645022d23d",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587997440522,
+        "stop" : 1587997444224,
+        "duration" : 3702
+      }
+    }, {
+      "uid" : "3a5a39b47d31eb3c",
+      "reportUrl" : "http://localhost:8080/job/test/85/allure/#testresult/3a5a39b47d31eb3c",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587997006360,
+        "stop" : 1587997009790,
+        "duration" : 3430
+      }
+    }, {
+      "uid" : "36ea0a6717ac7bc6",
+      "reportUrl" : "http://localhost:8080/job/test/84/allure/#testresult/36ea0a6717ac7bc6",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587996881097,
+        "stop" : 1587996885766,
+        "duration" : 4669
+      }
+    }, {
+      "uid" : "966423346f7e857c",
+      "reportUrl" : "http://localhost:8080/job/test/83/allure/#testresult/966423346f7e857c",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587996685844,
+        "stop" : 1587996689383,
+        "duration" : 3539
+      }
+    }, {
+      "uid" : "96e71193e7966f4e",
+      "reportUrl" : "http://localhost:8080/job/test/82/allure/#testresult/96e71193e7966f4e",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587996416402,
+        "stop" : 1587996420371,
+        "duration" : 3969
+      }
+    }, {
+      "uid" : "6d53ff2918a55f09",
+      "reportUrl" : "http://localhost:8080/job/test/81/allure/#testresult/6d53ff2918a55f09",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587996283180,
+        "stop" : 1587996287690,
+        "duration" : 4510
+      }
+    }, {
+      "uid" : "88fe35d03dd97e10",
+      "reportUrl" : "http://localhost:8080/job/test/80/allure/#testresult/88fe35d03dd97e10",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587993443818,
+        "stop" : 1587993447905,
+        "duration" : 4087
+      }
+    }, {
+      "uid" : "898e5a059f4aa481",
+      "reportUrl" : "http://localhost:8080/job/test/79/allure/#testresult/898e5a059f4aa481",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587993139970,
+        "stop" : 1587993144821,
+        "duration" : 4851
+      }
+    }, {
+      "uid" : "75112decab43dc7d",
+      "reportUrl" : "http://localhost:8080/job/test/78/allure/#testresult/75112decab43dc7d",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587991256785,
+        "stop" : 1587991267249,
+        "duration" : 10464
+      }
+    }, {
+      "uid" : "7028d9ceb8ab16a3",
+      "reportUrl" : "http://localhost:8080/job/test/77/allure/#testresult/7028d9ceb8ab16a3",
+      "status" : "passed",
+      "time" : {
+        "start" : 1587978840739,
+        "stop" : 1587978844458,
+        "duration" : 3719
+      }
+    } ]
+  }
+}

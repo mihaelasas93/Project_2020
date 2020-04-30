@@ -1,0 +1,153 @@
+{
+  "uid" : "67f5324531cdd16e",
+  "name" : "test_main_page_initialization[chrome]",
+  "fullName" : "test_framework.test_user_interface.TestSuiteUI#test_main_page_initialization",
+  "historyId" : "0eb6ce744dce3490d5566f1adf60279d",
+  "time" : {
+    "start" : 1587997495066,
+    "stop" : 1587997498932,
+    "duration" : 3866
+  },
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ {
+    "name" : "_verify_url",
+    "time" : {
+      "start" : 1587997489763,
+      "stop" : 1587997489763,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "attachmentsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "stepsCount" : 0,
+    "hasContent" : false
+  }, {
+    "name" : "driver_init",
+    "time" : {
+      "start" : 1587997489764,
+      "stop" : 1587997495065,
+      "duration" : 5301
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "attachmentsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "stepsCount" : 0,
+    "hasContent" : false
+  }, {
+    "name" : "_skip_sensitive",
+    "time" : {
+      "start" : 1587997495066,
+      "stop" : 1587997495066,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "attachmentsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "stepsCount" : 0,
+    "hasContent" : false
+  }, {
+    "name" : "base_url",
+    "time" : {
+      "start" : 1587997489763,
+      "stop" : 1587997489763,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "attachmentsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "stepsCount" : 0,
+    "hasContent" : false
+  }, {
+    "name" : "sensitive_url",
+    "time" : {
+      "start" : 1587997489764,
+      "stop" : 1587997489764,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "attachmentsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "stepsCount" : 0,
+    "hasContent" : false
+  } ],
+  "afterStages" : [ {
+    "name" : "driver_init::0",
+    "time" : {
+      "start" : 1587997498934,
+      "stop" : 1587997499025,
+      "duration" : 91
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "attachmentsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "stepsCount" : 0,
+    "hasContent" : false
+  } ],
+  "labels" : [ {
+    "name" : "tag",
+    "value" : "user_interface_suite"
+  }, {
+    "name" : "tag",
+    "value" : "main_page"
+  }, {
+    "name" : "parentSuite",
+    "value" : "test_framework"
+  }, {
+    "name" : "suite",
+    "value" : "test_user_interface"
+  }, {
+    "name" : "subSuite",
+    "value" : "TestSuiteUI"
+  }, {
+    "name" : "host",
+    "value" : "Miha-NB"
+  }, {
+    "name" : "thread",
+    "value" : "17092-MainThread"
+  }, {
+    "name" : "framework",
+    "value" : "pytest"
+  }, {
+    "name" : "language",
+    "value" : "cpython3"
+  }, {
+    "name" : "package",
+    "value" : "test_framework.test_user_interface"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure2"
+  } ],
+  "parameters" : [ {
+    "name" : "driver_init",
+    "value" : "'chrome'"
+  } ],
+  "links" : [ ],
+  "hidden" : true,
+  "retry" : true,
+  "extra" : {
+    "categories" : [ ],
+    "tags" : [ "user_interface_suite", "main_page" ]
+  },
+  "source" : "67f5324531cdd16e.json",
+  "parameterValues" : [ "'chrome'" ]
+}

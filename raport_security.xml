@@ -1,0 +1,1237 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite errors="4" failures="0" hostname="Miha-NB" name="pytest" skipped="0" tests="4" time="0.570" timestamp="2020-04-26T16:22:44.628274"><testcase classname="test_framework.test_security.TestSuiteSecurity" file="test_framework\test_security.py" line="10" name="test_password_limitations[chrome]" time="0.004"><error message="test setup failure">self = &lt;selenium.webdriver.chrome.service.Service object at 0x04792820&gt;
+
+    def start(self):
+        &quot;&quot;&quot;
+        Starts the Service.
+    
+        :Exceptions:
+         - WebDriverException : Raised either when it can&apos;t start the service
+           or when it can&apos;t connect to the service
+        &quot;&quot;&quot;
+        try:
+            cmd = [self.path]
+            cmd.extend(self.command_line_args())
+&gt;           self.process = subprocess.Popen(cmd, env=self.env,
+                                            close_fds=platform.system() != &apos;Windows&apos;,
+                                            stdout=self.log_file,
+                                            stderr=self.log_file,
+                                            stdin=PIPE)
+
+..\..\AppData\Local\Programs\Python\Python38-32\lib\site-packages\selenium\webdriver\common\service.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;subprocess.Popen object at 0x047928F8&gt;, args = [&apos;chromedriver&apos;, &apos;--port=56622&apos;], bufsize = -1, executable = None
+stdin = -1, stdout = -3, stderr = -3, preexec_fn = None, close_fds = False, shell = False, cwd = None
+env = environ({&apos;ALLUSERSPROFILE&apos;: &apos;C:\\ProgramData&apos;, &apos;APPDATA&apos;: &apos;C:\\Users\\user\\AppData\\Roaming&apos;, &apos;COMMONPROGRAMFILES&apos;: &apos;...PYTEST_CURRENT_TEST&apos;: &apos;test_framework/test_security.py::TestSuiteSecurity::test_password_limitations[chrome] (setup)&apos;})
+universal_newlines = None, startupinfo = None, creationflags = 0, restore_signals = True, start_new_session = False
+pass_fds = ()
+
+    def __init__(self, args, bufsize=-1, executable=None,
+                 stdin=None, stdout=None, stderr=None,
+                 preexec_fn=None, close_fds=True,
+                 shell=False, cwd=None, env=None, universal_newlines=None,
+                 startupinfo=None, creationflags=0,
+                 restore_signals=True, start_new_session=False,
+                 pass_fds=(), *, encoding=None, errors=None, text=None):
+        &quot;&quot;&quot;Create new Popen instance.&quot;&quot;&quot;
+        _cleanup()
+        # Held while anything is calling waitpid before returncode has been
+        # updated to prevent clobbering returncode if wait() or poll() are
+        # called from multiple threads at once.  After acquiring the lock,
+        # code must re-check self.returncode to see if another thread just
+        # finished a waitpid() call.
+        self._waitpid_lock = threading.Lock()
+    
+        self._input = None
+        self._communication_started = False
+        if bufsize is None:
+            bufsize = -1  # Restore default
+        if not isinstance(bufsize, int):
+            raise TypeError(&quot;bufsize must be an integer&quot;)
+    
+        if _mswindows:
+            if preexec_fn is not None:
+                raise ValueError(&quot;preexec_fn is not supported on Windows &quot;
+                                 &quot;platforms&quot;)
+        else:
+            # POSIX
+            if pass_fds and not close_fds:
+                warnings.warn(&quot;pass_fds overriding close_fds.&quot;, RuntimeWarning)
+                close_fds = True
+            if startupinfo is not None:
+                raise ValueError(&quot;startupinfo is only supported on Windows &quot;
+                                 &quot;platforms&quot;)
+            if creationflags != 0:
+                raise ValueError(&quot;creationflags is only supported on Windows &quot;
+                                 &quot;platforms&quot;)
+    
+        self.args = args
+        self.stdin = None
+        self.stdout = None
+        self.stderr = None
+        self.pid = None
+        self.returncode = None
+        self.encoding = encoding
+        self.errors = errors
+    
+        # Validate the combinations of text and universal_newlines
+        if (text is not None and universal_newlines is not None
+            and bool(universal_newlines) != bool(text)):
+            raise SubprocessError(&apos;Cannot disambiguate when both text &apos;
+                                  &apos;and universal_newlines are supplied but &apos;
+                                  &apos;different. Pass one or the other.&apos;)
+    
+        # Input and output objects. The general principle is like
+        # this:
+        #
+        # Parent                   Child
+        # ------                   -----
+        # p2cwrite   ---stdin---&gt;  p2cread
+        # c2pread    &lt;--stdout---  c2pwrite
+        # errread    &lt;--stderr---  errwrite
+        #
+        # On POSIX, the child objects are file descriptors.  On
+        # Windows, these are Windows file handles.  The parent objects
+        # are file descriptors on both platforms.  The parent objects
+        # are -1 when not using PIPEs. The child objects are -1
+        # when not redirecting.
+    
+        (p2cread, p2cwrite,
+         c2pread, c2pwrite,
+         errread, errwrite) = self._get_handles(stdin, stdout, stderr)
+    
+        # We wrap OS handles *before* launching the child, otherwise a
+        # quickly terminating child could make our fds unwrappable
+        # (see #8458).
+    
+        if _mswindows:
+            if p2cwrite != -1:
+                p2cwrite = msvcrt.open_osfhandle(p2cwrite.Detach(), 0)
+            if c2pread != -1:
+                c2pread = msvcrt.open_osfhandle(c2pread.Detach(), 0)
+            if errread != -1:
+                errread = msvcrt.open_osfhandle(errread.Detach(), 0)
+    
+        self.text_mode = encoding or errors or text or universal_newlines
+    
+        # How long to resume waiting on a child after the first ^C.
+        # There is no right value for this.  The purpose is to be polite
+        # yet remain good for interactive users trying to exit a tool.
+        self._sigint_wait_secs = 0.25  # 1/xkcd221.getRandomNumber()
+    
+        self._closed_child_pipe_fds = False
+    
+        if self.text_mode:
+            if bufsize == 1:
+                line_buffering = True
+                # Use the default buffer size for the underlying binary streams
+                # since they don&apos;t support line buffering.
+                bufsize = -1
+            else:
+                line_buffering = False
+    
+        try:
+            if p2cwrite != -1:
+                self.stdin = io.open(p2cwrite, &apos;wb&apos;, bufsize)
+                if self.text_mode:
+                    self.stdin = io.TextIOWrapper(self.stdin, write_through=True,
+                            line_buffering=line_buffering,
+                            encoding=encoding, errors=errors)
+            if c2pread != -1:
+                self.stdout = io.open(c2pread, &apos;rb&apos;, bufsize)
+                if self.text_mode:
+                    self.stdout = io.TextIOWrapper(self.stdout,
+                            encoding=encoding, errors=errors)
+            if errread != -1:
+                self.stderr = io.open(errread, &apos;rb&apos;, bufsize)
+                if self.text_mode:
+                    self.stderr = io.TextIOWrapper(self.stderr,
+                            encoding=encoding, errors=errors)
+    
+&gt;           self._execute_child(args, executable, preexec_fn, close_fds,
+                                pass_fds, cwd, env,
+                                startupinfo, creationflags, shell,
+                                p2cread, p2cwrite,
+                                c2pread, c2pwrite,
+                                errread, errwrite,
+                                restore_signals, start_new_session)
+
+..\..\AppData\Local\Programs\Python\Python38-32\lib\subprocess.py:854: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;subprocess.Popen object at 0x047928F8&gt;, args = &apos;chromedriver --port=56622&apos;, executable = None, preexec_fn = None
+close_fds = False, pass_fds = (), cwd = None
+env = environ({&apos;ALLUSERSPROFILE&apos;: &apos;C:\\ProgramData&apos;, &apos;APPDATA&apos;: &apos;C:\\Users\\user\\AppData\\Roaming&apos;, &apos;COMMONPROGRAMFILES&apos;: &apos;...PYTEST_CURRENT_TEST&apos;: &apos;test_framework/test_security.py::TestSuiteSecurity::test_password_limitations[chrome] (setup)&apos;})
+startupinfo = &lt;subprocess.STARTUPINFO object at 0x04792808&gt;, creationflags = 0, shell = False, p2cread = Handle(868)
+p2cwrite = 14, c2pread = -1, c2pwrite = Handle(880), errread = -1, errwrite = Handle(876), unused_restore_signals = True
+unused_start_new_session = False
+
+    def _execute_child(self, args, executable, preexec_fn, close_fds,
+                       pass_fds, cwd, env,
+                       startupinfo, creationflags, shell,
+                       p2cread, p2cwrite,
+                       c2pread, c2pwrite,
+                       errread, errwrite,
+                       unused_restore_signals, unused_start_new_session):
+        &quot;&quot;&quot;Execute program (MS Windows version)&quot;&quot;&quot;
+    
+        assert not pass_fds, &quot;pass_fds not supported on Windows.&quot;
+    
+        if isinstance(args, str):
+            pass
+        elif isinstance(args, bytes):
+            if shell:
+                raise TypeError(&apos;bytes args is not allowed on Windows&apos;)
+            args = list2cmdline([args])
+        elif isinstance(args, os.PathLike):
+            if shell:
+                raise TypeError(&apos;path-like args is not allowed when &apos;
+                                &apos;shell is true&apos;)
+            args = list2cmdline([args])
+        else:
+            args = list2cmdline(args)
+    
+        if executable is not None:
+            executable = os.fsdecode(executable)
+    
+        # Process startup details
+        if startupinfo is None:
+            startupinfo = STARTUPINFO()
+        else:
+            # bpo-34044: Copy STARTUPINFO since it is modified above,
+            # so the caller can reuse it multiple times.
+            startupinfo = startupinfo.copy()
+    
+        use_std_handles = -1 not in (p2cread, c2pwrite, errwrite)
+        if use_std_handles:
+            startupinfo.dwFlags |= _winapi.STARTF_USESTDHANDLES
+            startupinfo.hStdInput = p2cread
+            startupinfo.hStdOutput = c2pwrite
+            startupinfo.hStdError = errwrite
+    
+        attribute_list = startupinfo.lpAttributeList
+        have_handle_list = bool(attribute_list and
+                                &quot;handle_list&quot; in attribute_list and
+                                attribute_list[&quot;handle_list&quot;])
+    
+        # If we were given an handle_list or need to create one
+        if have_handle_list or (use_std_handles and close_fds):
+            if attribute_list is None:
+                attribute_list = startupinfo.lpAttributeList = {}
+            handle_list = attribute_list[&quot;handle_list&quot;] = \
+                list(attribute_list.get(&quot;handle_list&quot;, []))
+    
+            if use_std_handles:
+                handle_list += [int(p2cread), int(c2pwrite), int(errwrite)]
+    
+            handle_list[:] = self._filter_handle_list(handle_list)
+    
+            if handle_list:
+                if not close_fds:
+                    warnings.warn(&quot;startupinfo.lpAttributeList[&apos;handle_list&apos;] &quot;
+                                  &quot;overriding close_fds&quot;, RuntimeWarning)
+    
+                # When using the handle_list we always request to inherit
+                # handles but the only handles that will be inherited are
+                # the ones in the handle_list
+                close_fds = False
+    
+        if shell:
+            startupinfo.dwFlags |= _winapi.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = _winapi.SW_HIDE
+            comspec = os.environ.get(&quot;COMSPEC&quot;, &quot;cmd.exe&quot;)
+            args = &apos;{} /c &quot;{}&quot;&apos;.format (comspec, args)
+    
+        if cwd is not None:
+            cwd = os.fsdecode(cwd)
+    
+        sys.audit(&quot;subprocess.Popen&quot;, executable, args, cwd, env)
+    
+        # Start the process
+        try:
+&gt;           hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                                     # no special security
+                                     None, None,
+                                     int(not close_fds),
+                                     creationflags,
+                                     env,
+                                     cwd,
+                                     startupinfo)
+E                                    FileNotFoundError: [WinError 2] The system cannot find the file specified
+
+..\..\AppData\Local\Programs\Python\Python38-32\lib\subprocess.py:1307: FileNotFoundError
+
+During handling of the above exception, another exception occurred:
+
+self = &lt;test_security.TestSuiteSecurity object at 0x046AC058&gt;
+request = &lt;SubRequest &apos;driver_init&apos; for &lt;Function test_password_limitations[chrome]&gt;&gt;
+
+    @pytest.fixture(params=[&quot;chrome&quot;], scope=&quot;class&quot;)
+    def driver_init(self, request):
+        if request.param == &quot;chrome&quot;:
+            #chrome_options = webdriver.ChromeOptions()
+            # chrome_options.add_argument(&quot;--incognito&quot;)
+            #self.driver = webdriver.Chrome(chrome_options=chrome_options)
+&gt;           self.driver = webdriver.Chrome()
+
+test_framework\common_files\test_web_driver.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\AppData\Local\Programs\Python\Python38-32\lib\site-packages\selenium\webdriver\chrome\webdriver.py:73: in __init__
+    self.service.start()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;selenium.webdriver.chrome.service.Service object at 0x04792820&gt;
+
+    def start(self):
+        &quot;&quot;&quot;
+        Starts the Service.
+    
+        :Exceptions:
+         - WebDriverException : Raised either when it can&apos;t start the service
+           or when it can&apos;t connect to the service
+        &quot;&quot;&quot;
+        try:
+            cmd = [self.path]
+            cmd.extend(self.command_line_args())
+            self.process = subprocess.Popen(cmd, env=self.env,
+                                            close_fds=platform.system() != &apos;Windows&apos;,
+                                            stdout=self.log_file,
+                                            stderr=self.log_file,
+                                            stdin=PIPE)
+        except TypeError:
+            raise
+        except OSError as err:
+            if err.errno == errno.ENOENT:
+&gt;               raise WebDriverException(
+                    &quot;&apos;%s&apos; executable needs to be in PATH. %s&quot; % (
+                        os.path.basename(self.path), self.start_error_message)
+E                       selenium.common.exceptions.WebDriverException: Message: &apos;chromedriver&apos; executable needs to be in PATH. Please see https://sites.google.com/a/chromium.org/chromedriver/home
+
+..\..\AppData\Local\Programs\Python\Python38-32\lib\site-packages\selenium\webdriver\common\service.py:81: WebDriverException</error></testcase><testcase classname="test_framework.test_security.TestSuiteSecurity" file="test_framework\test_security.py" line="34" name="test_invalid_address_text[chrome]" time="0.001"><error message="test setup failure">self = &lt;selenium.webdriver.chrome.service.Service object at 0x04792820&gt;
+
+    def start(self):
+        &quot;&quot;&quot;
+        Starts the Service.
+    
+        :Exceptions:
+         - WebDriverException : Raised either when it can&apos;t start the service
+           or when it can&apos;t connect to the service
+        &quot;&quot;&quot;
+        try:
+            cmd = [self.path]
+            cmd.extend(self.command_line_args())
+&gt;           self.process = subprocess.Popen(cmd, env=self.env,
+                                            close_fds=platform.system() != &apos;Windows&apos;,
+                                            stdout=self.log_file,
+                                            stderr=self.log_file,
+                                            stdin=PIPE)
+
+..\..\AppData\Local\Programs\Python\Python38-32\lib\site-packages\selenium\webdriver\common\service.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;subprocess.Popen object at 0x047928F8&gt;, args = [&apos;chromedriver&apos;, &apos;--port=56622&apos;], bufsize = -1, executable = None
+stdin = -1, stdout = -3, stderr = -3, preexec_fn = None, close_fds = False, shell = False, cwd = None
+env = environ({&apos;ALLUSERSPROFILE&apos;: &apos;C:\\ProgramData&apos;, &apos;APPDATA&apos;: &apos;C:\\Users\\user\\AppData\\Roaming&apos;, &apos;COMMONPROGRAMFILES&apos;: &apos;...PYTEST_CURRENT_TEST&apos;: &apos;test_framework/test_security.py::TestSuiteSecurity::test_invalid_address_text[chrome] (setup)&apos;})
+universal_newlines = None, startupinfo = None, creationflags = 0, restore_signals = True, start_new_session = False
+pass_fds = ()
+
+    def __init__(self, args, bufsize=-1, executable=None,
+                 stdin=None, stdout=None, stderr=None,
+                 preexec_fn=None, close_fds=True,
+                 shell=False, cwd=None, env=None, universal_newlines=None,
+                 startupinfo=None, creationflags=0,
+                 restore_signals=True, start_new_session=False,
+                 pass_fds=(), *, encoding=None, errors=None, text=None):
+        &quot;&quot;&quot;Create new Popen instance.&quot;&quot;&quot;
+        _cleanup()
+        # Held while anything is calling waitpid before returncode has been
+        # updated to prevent clobbering returncode if wait() or poll() are
+        # called from multiple threads at once.  After acquiring the lock,
+        # code must re-check self.returncode to see if another thread just
+        # finished a waitpid() call.
+        self._waitpid_lock = threading.Lock()
+    
+        self._input = None
+        self._communication_started = False
+        if bufsize is None:
+            bufsize = -1  # Restore default
+        if not isinstance(bufsize, int):
+            raise TypeError(&quot;bufsize must be an integer&quot;)
+    
+        if _mswindows:
+            if preexec_fn is not None:
+                raise ValueError(&quot;preexec_fn is not supported on Windows &quot;
+                                 &quot;platforms&quot;)
+        else:
+            # POSIX
+            if pass_fds and not close_fds:
+                warnings.warn(&quot;pass_fds overriding close_fds.&quot;, RuntimeWarning)
+                close_fds = True
+            if startupinfo is not None:
+                raise ValueError(&quot;startupinfo is only supported on Windows &quot;
+                                 &quot;platforms&quot;)
+            if creationflags != 0:
+                raise ValueError(&quot;creationflags is only supported on Windows &quot;
+                                 &quot;platforms&quot;)
+    
+        self.args = args
+        self.stdin = None
+        self.stdout = None
+        self.stderr = None
+        self.pid = None
+        self.returncode = None
+        self.encoding = encoding
+        self.errors = errors
+    
+        # Validate the combinations of text and universal_newlines
+        if (text is not None and universal_newlines is not None
+            and bool(universal_newlines) != bool(text)):
+            raise SubprocessError(&apos;Cannot disambiguate when both text &apos;
+                                  &apos;and universal_newlines are supplied but &apos;
+                                  &apos;different. Pass one or the other.&apos;)
+    
+        # Input and output objects. The general principle is like
+        # this:
+        #
+        # Parent                   Child
+        # ------                   -----
+        # p2cwrite   ---stdin---&gt;  p2cread
+        # c2pread    &lt;--stdout---  c2pwrite
+        # errread    &lt;--stderr---  errwrite
+        #
+        # On POSIX, the child objects are file descriptors.  On
+        # Windows, these are Windows file handles.  The parent objects
+        # are file descriptors on both platforms.  The parent objects
+        # are -1 when not using PIPEs. The child objects are -1
+        # when not redirecting.
+    
+        (p2cread, p2cwrite,
+         c2pread, c2pwrite,
+         errread, errwrite) = self._get_handles(stdin, stdout, stderr)
+    
+        # We wrap OS handles *before* launching the child, otherwise a
+        # quickly terminating child could make our fds unwrappable
+        # (see #8458).
+    
+        if _mswindows:
+            if p2cwrite != -1:
+                p2cwrite = msvcrt.open_osfhandle(p2cwrite.Detach(), 0)
+            if c2pread != -1:
+                c2pread = msvcrt.open_osfhandle(c2pread.Detach(), 0)
+            if errread != -1:
+                errread = msvcrt.open_osfhandle(errread.Detach(), 0)
+    
+        self.text_mode = encoding or errors or text or universal_newlines
+    
+        # How long to resume waiting on a child after the first ^C.
+        # There is no right value for this.  The purpose is to be polite
+        # yet remain good for interactive users trying to exit a tool.
+        self._sigint_wait_secs = 0.25  # 1/xkcd221.getRandomNumber()
+    
+        self._closed_child_pipe_fds = False
+    
+        if self.text_mode:
+            if bufsize == 1:
+                line_buffering = True
+                # Use the default buffer size for the underlying binary streams
+                # since they don&apos;t support line buffering.
+                bufsize = -1
+            else:
+                line_buffering = False
+    
+        try:
+            if p2cwrite != -1:
+                self.stdin = io.open(p2cwrite, &apos;wb&apos;, bufsize)
+                if self.text_mode:
+                    self.stdin = io.TextIOWrapper(self.stdin, write_through=True,
+                            line_buffering=line_buffering,
+                            encoding=encoding, errors=errors)
+            if c2pread != -1:
+                self.stdout = io.open(c2pread, &apos;rb&apos;, bufsize)
+                if self.text_mode:
+                    self.stdout = io.TextIOWrapper(self.stdout,
+                            encoding=encoding, errors=errors)
+            if errread != -1:
+                self.stderr = io.open(errread, &apos;rb&apos;, bufsize)
+                if self.text_mode:
+                    self.stderr = io.TextIOWrapper(self.stderr,
+                            encoding=encoding, errors=errors)
+    
+&gt;           self._execute_child(args, executable, preexec_fn, close_fds,
+                                pass_fds, cwd, env,
+                                startupinfo, creationflags, shell,
+                                p2cread, p2cwrite,
+                                c2pread, c2pwrite,
+                                errread, errwrite,
+                                restore_signals, start_new_session)
+
+..\..\AppData\Local\Programs\Python\Python38-32\lib\subprocess.py:854: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;subprocess.Popen object at 0x047928F8&gt;, args = &apos;chromedriver --port=56622&apos;, executable = None, preexec_fn = None
+close_fds = False, pass_fds = (), cwd = None
+env = environ({&apos;ALLUSERSPROFILE&apos;: &apos;C:\\ProgramData&apos;, &apos;APPDATA&apos;: &apos;C:\\Users\\user\\AppData\\Roaming&apos;, &apos;COMMONPROGRAMFILES&apos;: &apos;...PYTEST_CURRENT_TEST&apos;: &apos;test_framework/test_security.py::TestSuiteSecurity::test_invalid_address_text[chrome] (setup)&apos;})
+startupinfo = &lt;subprocess.STARTUPINFO object at 0x04792808&gt;, creationflags = 0, shell = False, p2cread = Handle(868)
+p2cwrite = 14, c2pread = -1, c2pwrite = Handle(880), errread = -1, errwrite = Handle(876), unused_restore_signals = True
+unused_start_new_session = False
+
+    def _execute_child(self, args, executable, preexec_fn, close_fds,
+                       pass_fds, cwd, env,
+                       startupinfo, creationflags, shell,
+                       p2cread, p2cwrite,
+                       c2pread, c2pwrite,
+                       errread, errwrite,
+                       unused_restore_signals, unused_start_new_session):
+        &quot;&quot;&quot;Execute program (MS Windows version)&quot;&quot;&quot;
+    
+        assert not pass_fds, &quot;pass_fds not supported on Windows.&quot;
+    
+        if isinstance(args, str):
+            pass
+        elif isinstance(args, bytes):
+            if shell:
+                raise TypeError(&apos;bytes args is not allowed on Windows&apos;)
+            args = list2cmdline([args])
+        elif isinstance(args, os.PathLike):
+            if shell:
+                raise TypeError(&apos;path-like args is not allowed when &apos;
+                                &apos;shell is true&apos;)
+            args = list2cmdline([args])
+        else:
+            args = list2cmdline(args)
+    
+        if executable is not None:
+            executable = os.fsdecode(executable)
+    
+        # Process startup details
+        if startupinfo is None:
+            startupinfo = STARTUPINFO()
+        else:
+            # bpo-34044: Copy STARTUPINFO since it is modified above,
+            # so the caller can reuse it multiple times.
+            startupinfo = startupinfo.copy()
+    
+        use_std_handles = -1 not in (p2cread, c2pwrite, errwrite)
+        if use_std_handles:
+            startupinfo.dwFlags |= _winapi.STARTF_USESTDHANDLES
+            startupinfo.hStdInput = p2cread
+            startupinfo.hStdOutput = c2pwrite
+            startupinfo.hStdError = errwrite
+    
+        attribute_list = startupinfo.lpAttributeList
+        have_handle_list = bool(attribute_list and
+                                &quot;handle_list&quot; in attribute_list and
+                                attribute_list[&quot;handle_list&quot;])
+    
+        # If we were given an handle_list or need to create one
+        if have_handle_list or (use_std_handles and close_fds):
+            if attribute_list is None:
+                attribute_list = startupinfo.lpAttributeList = {}
+            handle_list = attribute_list[&quot;handle_list&quot;] = \
+                list(attribute_list.get(&quot;handle_list&quot;, []))
+    
+            if use_std_handles:
+                handle_list += [int(p2cread), int(c2pwrite), int(errwrite)]
+    
+            handle_list[:] = self._filter_handle_list(handle_list)
+    
+            if handle_list:
+                if not close_fds:
+                    warnings.warn(&quot;startupinfo.lpAttributeList[&apos;handle_list&apos;] &quot;
+                                  &quot;overriding close_fds&quot;, RuntimeWarning)
+    
+                # When using the handle_list we always request to inherit
+                # handles but the only handles that will be inherited are
+                # the ones in the handle_list
+                close_fds = False
+    
+        if shell:
+            startupinfo.dwFlags |= _winapi.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = _winapi.SW_HIDE
+            comspec = os.environ.get(&quot;COMSPEC&quot;, &quot;cmd.exe&quot;)
+            args = &apos;{} /c &quot;{}&quot;&apos;.format (comspec, args)
+    
+        if cwd is not None:
+            cwd = os.fsdecode(cwd)
+    
+        sys.audit(&quot;subprocess.Popen&quot;, executable, args, cwd, env)
+    
+        # Start the process
+        try:
+&gt;           hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                                     # no special security
+                                     None, None,
+                                     int(not close_fds),
+                                     creationflags,
+                                     env,
+                                     cwd,
+                                     startupinfo)
+E                                    FileNotFoundError: [WinError 2] The system cannot find the file specified
+
+..\..\AppData\Local\Programs\Python\Python38-32\lib\subprocess.py:1307: FileNotFoundError
+
+During handling of the above exception, another exception occurred:
+
+self = &lt;test_security.TestSuiteSecurity object at 0x046AC058&gt;
+request = &lt;SubRequest &apos;driver_init&apos; for &lt;Function test_password_limitations[chrome]&gt;&gt;
+
+    @pytest.fixture(params=[&quot;chrome&quot;], scope=&quot;class&quot;)
+    def driver_init(self, request):
+        if request.param == &quot;chrome&quot;:
+            #chrome_options = webdriver.ChromeOptions()
+            # chrome_options.add_argument(&quot;--incognito&quot;)
+            #self.driver = webdriver.Chrome(chrome_options=chrome_options)
+&gt;           self.driver = webdriver.Chrome()
+
+test_framework\common_files\test_web_driver.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\AppData\Local\Programs\Python\Python38-32\lib\site-packages\selenium\webdriver\chrome\webdriver.py:73: in __init__
+    self.service.start()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;selenium.webdriver.chrome.service.Service object at 0x04792820&gt;
+
+    def start(self):
+        &quot;&quot;&quot;
+        Starts the Service.
+    
+        :Exceptions:
+         - WebDriverException : Raised either when it can&apos;t start the service
+           or when it can&apos;t connect to the service
+        &quot;&quot;&quot;
+        try:
+            cmd = [self.path]
+            cmd.extend(self.command_line_args())
+            self.process = subprocess.Popen(cmd, env=self.env,
+                                            close_fds=platform.system() != &apos;Windows&apos;,
+                                            stdout=self.log_file,
+                                            stderr=self.log_file,
+                                            stdin=PIPE)
+        except TypeError:
+            raise
+        except OSError as err:
+            if err.errno == errno.ENOENT:
+&gt;               raise WebDriverException(
+                    &quot;&apos;%s&apos; executable needs to be in PATH. %s&quot; % (
+                        os.path.basename(self.path), self.start_error_message)
+E                       selenium.common.exceptions.WebDriverException: Message: &apos;chromedriver&apos; executable needs to be in PATH. Please see https://sites.google.com/a/chromium.org/chromedriver/home
+
+..\..\AppData\Local\Programs\Python\Python38-32\lib\site-packages\selenium\webdriver\common\service.py:81: WebDriverException</error></testcase><testcase classname="test_framework.test_security.TestSuiteSecurity" file="test_framework\test_security.py" line="61" name="test_user_not_logout_after_back_action[chrome]" time="0.001"><error message="test setup failure">self = &lt;selenium.webdriver.chrome.service.Service object at 0x04792820&gt;
+
+    def start(self):
+        &quot;&quot;&quot;
+        Starts the Service.
+    
+        :Exceptions:
+         - WebDriverException : Raised either when it can&apos;t start the service
+           or when it can&apos;t connect to the service
+        &quot;&quot;&quot;
+        try:
+            cmd = [self.path]
+            cmd.extend(self.command_line_args())
+&gt;           self.process = subprocess.Popen(cmd, env=self.env,
+                                            close_fds=platform.system() != &apos;Windows&apos;,
+                                            stdout=self.log_file,
+                                            stderr=self.log_file,
+                                            stdin=PIPE)
+
+..\..\AppData\Local\Programs\Python\Python38-32\lib\site-packages\selenium\webdriver\common\service.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;subprocess.Popen object at 0x047928F8&gt;, args = [&apos;chromedriver&apos;, &apos;--port=56622&apos;], bufsize = -1, executable = None
+stdin = -1, stdout = -3, stderr = -3, preexec_fn = None, close_fds = False, shell = False, cwd = None
+env = environ({&apos;ALLUSERSPROFILE&apos;: &apos;C:\\ProgramData&apos;, &apos;APPDATA&apos;: &apos;C:\\Users\\user\\AppData\\Roaming&apos;, &apos;COMMONPROGRAMFILES&apos;: &apos;...T_TEST&apos;: &apos;test_framework/test_security.py::TestSuiteSecurity::test_user_not_logout_after_back_action[chrome] (setup)&apos;})
+universal_newlines = None, startupinfo = None, creationflags = 0, restore_signals = True, start_new_session = False
+pass_fds = ()
+
+    def __init__(self, args, bufsize=-1, executable=None,
+                 stdin=None, stdout=None, stderr=None,
+                 preexec_fn=None, close_fds=True,
+                 shell=False, cwd=None, env=None, universal_newlines=None,
+                 startupinfo=None, creationflags=0,
+                 restore_signals=True, start_new_session=False,
+                 pass_fds=(), *, encoding=None, errors=None, text=None):
+        &quot;&quot;&quot;Create new Popen instance.&quot;&quot;&quot;
+        _cleanup()
+        # Held while anything is calling waitpid before returncode has been
+        # updated to prevent clobbering returncode if wait() or poll() are
+        # called from multiple threads at once.  After acquiring the lock,
+        # code must re-check self.returncode to see if another thread just
+        # finished a waitpid() call.
+        self._waitpid_lock = threading.Lock()
+    
+        self._input = None
+        self._communication_started = False
+        if bufsize is None:
+            bufsize = -1  # Restore default
+        if not isinstance(bufsize, int):
+            raise TypeError(&quot;bufsize must be an integer&quot;)
+    
+        if _mswindows:
+            if preexec_fn is not None:
+                raise ValueError(&quot;preexec_fn is not supported on Windows &quot;
+                                 &quot;platforms&quot;)
+        else:
+            # POSIX
+            if pass_fds and not close_fds:
+                warnings.warn(&quot;pass_fds overriding close_fds.&quot;, RuntimeWarning)
+                close_fds = True
+            if startupinfo is not None:
+                raise ValueError(&quot;startupinfo is only supported on Windows &quot;
+                                 &quot;platforms&quot;)
+            if creationflags != 0:
+                raise ValueError(&quot;creationflags is only supported on Windows &quot;
+                                 &quot;platforms&quot;)
+    
+        self.args = args
+        self.stdin = None
+        self.stdout = None
+        self.stderr = None
+        self.pid = None
+        self.returncode = None
+        self.encoding = encoding
+        self.errors = errors
+    
+        # Validate the combinations of text and universal_newlines
+        if (text is not None and universal_newlines is not None
+            and bool(universal_newlines) != bool(text)):
+            raise SubprocessError(&apos;Cannot disambiguate when both text &apos;
+                                  &apos;and universal_newlines are supplied but &apos;
+                                  &apos;different. Pass one or the other.&apos;)
+    
+        # Input and output objects. The general principle is like
+        # this:
+        #
+        # Parent                   Child
+        # ------                   -----
+        # p2cwrite   ---stdin---&gt;  p2cread
+        # c2pread    &lt;--stdout---  c2pwrite
+        # errread    &lt;--stderr---  errwrite
+        #
+        # On POSIX, the child objects are file descriptors.  On
+        # Windows, these are Windows file handles.  The parent objects
+        # are file descriptors on both platforms.  The parent objects
+        # are -1 when not using PIPEs. The child objects are -1
+        # when not redirecting.
+    
+        (p2cread, p2cwrite,
+         c2pread, c2pwrite,
+         errread, errwrite) = self._get_handles(stdin, stdout, stderr)
+    
+        # We wrap OS handles *before* launching the child, otherwise a
+        # quickly terminating child could make our fds unwrappable
+        # (see #8458).
+    
+        if _mswindows:
+            if p2cwrite != -1:
+                p2cwrite = msvcrt.open_osfhandle(p2cwrite.Detach(), 0)
+            if c2pread != -1:
+                c2pread = msvcrt.open_osfhandle(c2pread.Detach(), 0)
+            if errread != -1:
+                errread = msvcrt.open_osfhandle(errread.Detach(), 0)
+    
+        self.text_mode = encoding or errors or text or universal_newlines
+    
+        # How long to resume waiting on a child after the first ^C.
+        # There is no right value for this.  The purpose is to be polite
+        # yet remain good for interactive users trying to exit a tool.
+        self._sigint_wait_secs = 0.25  # 1/xkcd221.getRandomNumber()
+    
+        self._closed_child_pipe_fds = False
+    
+        if self.text_mode:
+            if bufsize == 1:
+                line_buffering = True
+                # Use the default buffer size for the underlying binary streams
+                # since they don&apos;t support line buffering.
+                bufsize = -1
+            else:
+                line_buffering = False
+    
+        try:
+            if p2cwrite != -1:
+                self.stdin = io.open(p2cwrite, &apos;wb&apos;, bufsize)
+                if self.text_mode:
+                    self.stdin = io.TextIOWrapper(self.stdin, write_through=True,
+                            line_buffering=line_buffering,
+                            encoding=encoding, errors=errors)
+            if c2pread != -1:
+                self.stdout = io.open(c2pread, &apos;rb&apos;, bufsize)
+                if self.text_mode:
+                    self.stdout = io.TextIOWrapper(self.stdout,
+                            encoding=encoding, errors=errors)
+            if errread != -1:
+                self.stderr = io.open(errread, &apos;rb&apos;, bufsize)
+                if self.text_mode:
+                    self.stderr = io.TextIOWrapper(self.stderr,
+                            encoding=encoding, errors=errors)
+    
+&gt;           self._execute_child(args, executable, preexec_fn, close_fds,
+                                pass_fds, cwd, env,
+                                startupinfo, creationflags, shell,
+                                p2cread, p2cwrite,
+                                c2pread, c2pwrite,
+                                errread, errwrite,
+                                restore_signals, start_new_session)
+
+..\..\AppData\Local\Programs\Python\Python38-32\lib\subprocess.py:854: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;subprocess.Popen object at 0x047928F8&gt;, args = &apos;chromedriver --port=56622&apos;, executable = None, preexec_fn = None
+close_fds = False, pass_fds = (), cwd = None
+env = environ({&apos;ALLUSERSPROFILE&apos;: &apos;C:\\ProgramData&apos;, &apos;APPDATA&apos;: &apos;C:\\Users\\user\\AppData\\Roaming&apos;, &apos;COMMONPROGRAMFILES&apos;: &apos;...T_TEST&apos;: &apos;test_framework/test_security.py::TestSuiteSecurity::test_user_not_logout_after_back_action[chrome] (setup)&apos;})
+startupinfo = &lt;subprocess.STARTUPINFO object at 0x04792808&gt;, creationflags = 0, shell = False, p2cread = Handle(868)
+p2cwrite = 14, c2pread = -1, c2pwrite = Handle(880), errread = -1, errwrite = Handle(876), unused_restore_signals = True
+unused_start_new_session = False
+
+    def _execute_child(self, args, executable, preexec_fn, close_fds,
+                       pass_fds, cwd, env,
+                       startupinfo, creationflags, shell,
+                       p2cread, p2cwrite,
+                       c2pread, c2pwrite,
+                       errread, errwrite,
+                       unused_restore_signals, unused_start_new_session):
+        &quot;&quot;&quot;Execute program (MS Windows version)&quot;&quot;&quot;
+    
+        assert not pass_fds, &quot;pass_fds not supported on Windows.&quot;
+    
+        if isinstance(args, str):
+            pass
+        elif isinstance(args, bytes):
+            if shell:
+                raise TypeError(&apos;bytes args is not allowed on Windows&apos;)
+            args = list2cmdline([args])
+        elif isinstance(args, os.PathLike):
+            if shell:
+                raise TypeError(&apos;path-like args is not allowed when &apos;
+                                &apos;shell is true&apos;)
+            args = list2cmdline([args])
+        else:
+            args = list2cmdline(args)
+    
+        if executable is not None:
+            executable = os.fsdecode(executable)
+    
+        # Process startup details
+        if startupinfo is None:
+            startupinfo = STARTUPINFO()
+        else:
+            # bpo-34044: Copy STARTUPINFO since it is modified above,
+            # so the caller can reuse it multiple times.
+            startupinfo = startupinfo.copy()
+    
+        use_std_handles = -1 not in (p2cread, c2pwrite, errwrite)
+        if use_std_handles:
+            startupinfo.dwFlags |= _winapi.STARTF_USESTDHANDLES
+            startupinfo.hStdInput = p2cread
+            startupinfo.hStdOutput = c2pwrite
+            startupinfo.hStdError = errwrite
+    
+        attribute_list = startupinfo.lpAttributeList
+        have_handle_list = bool(attribute_list and
+                                &quot;handle_list&quot; in attribute_list and
+                                attribute_list[&quot;handle_list&quot;])
+    
+        # If we were given an handle_list or need to create one
+        if have_handle_list or (use_std_handles and close_fds):
+            if attribute_list is None:
+                attribute_list = startupinfo.lpAttributeList = {}
+            handle_list = attribute_list[&quot;handle_list&quot;] = \
+                list(attribute_list.get(&quot;handle_list&quot;, []))
+    
+            if use_std_handles:
+                handle_list += [int(p2cread), int(c2pwrite), int(errwrite)]
+    
+            handle_list[:] = self._filter_handle_list(handle_list)
+    
+            if handle_list:
+                if not close_fds:
+                    warnings.warn(&quot;startupinfo.lpAttributeList[&apos;handle_list&apos;] &quot;
+                                  &quot;overriding close_fds&quot;, RuntimeWarning)
+    
+                # When using the handle_list we always request to inherit
+                # handles but the only handles that will be inherited are
+                # the ones in the handle_list
+                close_fds = False
+    
+        if shell:
+            startupinfo.dwFlags |= _winapi.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = _winapi.SW_HIDE
+            comspec = os.environ.get(&quot;COMSPEC&quot;, &quot;cmd.exe&quot;)
+            args = &apos;{} /c &quot;{}&quot;&apos;.format (comspec, args)
+    
+        if cwd is not None:
+            cwd = os.fsdecode(cwd)
+    
+        sys.audit(&quot;subprocess.Popen&quot;, executable, args, cwd, env)
+    
+        # Start the process
+        try:
+&gt;           hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                                     # no special security
+                                     None, None,
+                                     int(not close_fds),
+                                     creationflags,
+                                     env,
+                                     cwd,
+                                     startupinfo)
+E                                    FileNotFoundError: [WinError 2] The system cannot find the file specified
+
+..\..\AppData\Local\Programs\Python\Python38-32\lib\subprocess.py:1307: FileNotFoundError
+
+During handling of the above exception, another exception occurred:
+
+self = &lt;test_security.TestSuiteSecurity object at 0x046AC058&gt;
+request = &lt;SubRequest &apos;driver_init&apos; for &lt;Function test_password_limitations[chrome]&gt;&gt;
+
+    @pytest.fixture(params=[&quot;chrome&quot;], scope=&quot;class&quot;)
+    def driver_init(self, request):
+        if request.param == &quot;chrome&quot;:
+            #chrome_options = webdriver.ChromeOptions()
+            # chrome_options.add_argument(&quot;--incognito&quot;)
+            #self.driver = webdriver.Chrome(chrome_options=chrome_options)
+&gt;           self.driver = webdriver.Chrome()
+
+test_framework\common_files\test_web_driver.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\AppData\Local\Programs\Python\Python38-32\lib\site-packages\selenium\webdriver\chrome\webdriver.py:73: in __init__
+    self.service.start()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;selenium.webdriver.chrome.service.Service object at 0x04792820&gt;
+
+    def start(self):
+        &quot;&quot;&quot;
+        Starts the Service.
+    
+        :Exceptions:
+         - WebDriverException : Raised either when it can&apos;t start the service
+           or when it can&apos;t connect to the service
+        &quot;&quot;&quot;
+        try:
+            cmd = [self.path]
+            cmd.extend(self.command_line_args())
+            self.process = subprocess.Popen(cmd, env=self.env,
+                                            close_fds=platform.system() != &apos;Windows&apos;,
+                                            stdout=self.log_file,
+                                            stderr=self.log_file,
+                                            stdin=PIPE)
+        except TypeError:
+            raise
+        except OSError as err:
+            if err.errno == errno.ENOENT:
+&gt;               raise WebDriverException(
+                    &quot;&apos;%s&apos; executable needs to be in PATH. %s&quot; % (
+                        os.path.basename(self.path), self.start_error_message)
+E                       selenium.common.exceptions.WebDriverException: Message: &apos;chromedriver&apos; executable needs to be in PATH. Please see https://sites.google.com/a/chromium.org/chromedriver/home
+
+..\..\AppData\Local\Programs\Python\Python38-32\lib\site-packages\selenium\webdriver\common\service.py:81: WebDriverException</error></testcase><testcase classname="test_framework.test_security.TestSuiteSecurity" file="test_framework\test_security.py" line="85" name="test_user_session_timeout[chrome]" time="0.001"><error message="test setup failure">self = &lt;selenium.webdriver.chrome.service.Service object at 0x04792820&gt;
+
+    def start(self):
+        &quot;&quot;&quot;
+        Starts the Service.
+    
+        :Exceptions:
+         - WebDriverException : Raised either when it can&apos;t start the service
+           or when it can&apos;t connect to the service
+        &quot;&quot;&quot;
+        try:
+            cmd = [self.path]
+            cmd.extend(self.command_line_args())
+&gt;           self.process = subprocess.Popen(cmd, env=self.env,
+                                            close_fds=platform.system() != &apos;Windows&apos;,
+                                            stdout=self.log_file,
+                                            stderr=self.log_file,
+                                            stdin=PIPE)
+
+..\..\AppData\Local\Programs\Python\Python38-32\lib\site-packages\selenium\webdriver\common\service.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;subprocess.Popen object at 0x047928F8&gt;, args = [&apos;chromedriver&apos;, &apos;--port=56622&apos;], bufsize = -1, executable = None
+stdin = -1, stdout = -3, stderr = -3, preexec_fn = None, close_fds = False, shell = False, cwd = None
+env = environ({&apos;ALLUSERSPROFILE&apos;: &apos;C:\\ProgramData&apos;, &apos;APPDATA&apos;: &apos;C:\\Users\\user\\AppData\\Roaming&apos;, &apos;COMMONPROGRAMFILES&apos;: &apos;...PYTEST_CURRENT_TEST&apos;: &apos;test_framework/test_security.py::TestSuiteSecurity::test_user_session_timeout[chrome] (setup)&apos;})
+universal_newlines = None, startupinfo = None, creationflags = 0, restore_signals = True, start_new_session = False
+pass_fds = ()
+
+    def __init__(self, args, bufsize=-1, executable=None,
+                 stdin=None, stdout=None, stderr=None,
+                 preexec_fn=None, close_fds=True,
+                 shell=False, cwd=None, env=None, universal_newlines=None,
+                 startupinfo=None, creationflags=0,
+                 restore_signals=True, start_new_session=False,
+                 pass_fds=(), *, encoding=None, errors=None, text=None):
+        &quot;&quot;&quot;Create new Popen instance.&quot;&quot;&quot;
+        _cleanup()
+        # Held while anything is calling waitpid before returncode has been
+        # updated to prevent clobbering returncode if wait() or poll() are
+        # called from multiple threads at once.  After acquiring the lock,
+        # code must re-check self.returncode to see if another thread just
+        # finished a waitpid() call.
+        self._waitpid_lock = threading.Lock()
+    
+        self._input = None
+        self._communication_started = False
+        if bufsize is None:
+            bufsize = -1  # Restore default
+        if not isinstance(bufsize, int):
+            raise TypeError(&quot;bufsize must be an integer&quot;)
+    
+        if _mswindows:
+            if preexec_fn is not None:
+                raise ValueError(&quot;preexec_fn is not supported on Windows &quot;
+                                 &quot;platforms&quot;)
+        else:
+            # POSIX
+            if pass_fds and not close_fds:
+                warnings.warn(&quot;pass_fds overriding close_fds.&quot;, RuntimeWarning)
+                close_fds = True
+            if startupinfo is not None:
+                raise ValueError(&quot;startupinfo is only supported on Windows &quot;
+                                 &quot;platforms&quot;)
+            if creationflags != 0:
+                raise ValueError(&quot;creationflags is only supported on Windows &quot;
+                                 &quot;platforms&quot;)
+    
+        self.args = args
+        self.stdin = None
+        self.stdout = None
+        self.stderr = None
+        self.pid = None
+        self.returncode = None
+        self.encoding = encoding
+        self.errors = errors
+    
+        # Validate the combinations of text and universal_newlines
+        if (text is not None and universal_newlines is not None
+            and bool(universal_newlines) != bool(text)):
+            raise SubprocessError(&apos;Cannot disambiguate when both text &apos;
+                                  &apos;and universal_newlines are supplied but &apos;
+                                  &apos;different. Pass one or the other.&apos;)
+    
+        # Input and output objects. The general principle is like
+        # this:
+        #
+        # Parent                   Child
+        # ------                   -----
+        # p2cwrite   ---stdin---&gt;  p2cread
+        # c2pread    &lt;--stdout---  c2pwrite
+        # errread    &lt;--stderr---  errwrite
+        #
+        # On POSIX, the child objects are file descriptors.  On
+        # Windows, these are Windows file handles.  The parent objects
+        # are file descriptors on both platforms.  The parent objects
+        # are -1 when not using PIPEs. The child objects are -1
+        # when not redirecting.
+    
+        (p2cread, p2cwrite,
+         c2pread, c2pwrite,
+         errread, errwrite) = self._get_handles(stdin, stdout, stderr)
+    
+        # We wrap OS handles *before* launching the child, otherwise a
+        # quickly terminating child could make our fds unwrappable
+        # (see #8458).
+    
+        if _mswindows:
+            if p2cwrite != -1:
+                p2cwrite = msvcrt.open_osfhandle(p2cwrite.Detach(), 0)
+            if c2pread != -1:
+                c2pread = msvcrt.open_osfhandle(c2pread.Detach(), 0)
+            if errread != -1:
+                errread = msvcrt.open_osfhandle(errread.Detach(), 0)
+    
+        self.text_mode = encoding or errors or text or universal_newlines
+    
+        # How long to resume waiting on a child after the first ^C.
+        # There is no right value for this.  The purpose is to be polite
+        # yet remain good for interactive users trying to exit a tool.
+        self._sigint_wait_secs = 0.25  # 1/xkcd221.getRandomNumber()
+    
+        self._closed_child_pipe_fds = False
+    
+        if self.text_mode:
+            if bufsize == 1:
+                line_buffering = True
+                # Use the default buffer size for the underlying binary streams
+                # since they don&apos;t support line buffering.
+                bufsize = -1
+            else:
+                line_buffering = False
+    
+        try:
+            if p2cwrite != -1:
+                self.stdin = io.open(p2cwrite, &apos;wb&apos;, bufsize)
+                if self.text_mode:
+                    self.stdin = io.TextIOWrapper(self.stdin, write_through=True,
+                            line_buffering=line_buffering,
+                            encoding=encoding, errors=errors)
+            if c2pread != -1:
+                self.stdout = io.open(c2pread, &apos;rb&apos;, bufsize)
+                if self.text_mode:
+                    self.stdout = io.TextIOWrapper(self.stdout,
+                            encoding=encoding, errors=errors)
+            if errread != -1:
+                self.stderr = io.open(errread, &apos;rb&apos;, bufsize)
+                if self.text_mode:
+                    self.stderr = io.TextIOWrapper(self.stderr,
+                            encoding=encoding, errors=errors)
+    
+&gt;           self._execute_child(args, executable, preexec_fn, close_fds,
+                                pass_fds, cwd, env,
+                                startupinfo, creationflags, shell,
+                                p2cread, p2cwrite,
+                                c2pread, c2pwrite,
+                                errread, errwrite,
+                                restore_signals, start_new_session)
+
+..\..\AppData\Local\Programs\Python\Python38-32\lib\subprocess.py:854: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;subprocess.Popen object at 0x047928F8&gt;, args = &apos;chromedriver --port=56622&apos;, executable = None, preexec_fn = None
+close_fds = False, pass_fds = (), cwd = None
+env = environ({&apos;ALLUSERSPROFILE&apos;: &apos;C:\\ProgramData&apos;, &apos;APPDATA&apos;: &apos;C:\\Users\\user\\AppData\\Roaming&apos;, &apos;COMMONPROGRAMFILES&apos;: &apos;...PYTEST_CURRENT_TEST&apos;: &apos;test_framework/test_security.py::TestSuiteSecurity::test_user_session_timeout[chrome] (setup)&apos;})
+startupinfo = &lt;subprocess.STARTUPINFO object at 0x04792808&gt;, creationflags = 0, shell = False, p2cread = Handle(868)
+p2cwrite = 14, c2pread = -1, c2pwrite = Handle(880), errread = -1, errwrite = Handle(876), unused_restore_signals = True
+unused_start_new_session = False
+
+    def _execute_child(self, args, executable, preexec_fn, close_fds,
+                       pass_fds, cwd, env,
+                       startupinfo, creationflags, shell,
+                       p2cread, p2cwrite,
+                       c2pread, c2pwrite,
+                       errread, errwrite,
+                       unused_restore_signals, unused_start_new_session):
+        &quot;&quot;&quot;Execute program (MS Windows version)&quot;&quot;&quot;
+    
+        assert not pass_fds, &quot;pass_fds not supported on Windows.&quot;
+    
+        if isinstance(args, str):
+            pass
+        elif isinstance(args, bytes):
+            if shell:
+                raise TypeError(&apos;bytes args is not allowed on Windows&apos;)
+            args = list2cmdline([args])
+        elif isinstance(args, os.PathLike):
+            if shell:
+                raise TypeError(&apos;path-like args is not allowed when &apos;
+                                &apos;shell is true&apos;)
+            args = list2cmdline([args])
+        else:
+            args = list2cmdline(args)
+    
+        if executable is not None:
+            executable = os.fsdecode(executable)
+    
+        # Process startup details
+        if startupinfo is None:
+            startupinfo = STARTUPINFO()
+        else:
+            # bpo-34044: Copy STARTUPINFO since it is modified above,
+            # so the caller can reuse it multiple times.
+            startupinfo = startupinfo.copy()
+    
+        use_std_handles = -1 not in (p2cread, c2pwrite, errwrite)
+        if use_std_handles:
+            startupinfo.dwFlags |= _winapi.STARTF_USESTDHANDLES
+            startupinfo.hStdInput = p2cread
+            startupinfo.hStdOutput = c2pwrite
+            startupinfo.hStdError = errwrite
+    
+        attribute_list = startupinfo.lpAttributeList
+        have_handle_list = bool(attribute_list and
+                                &quot;handle_list&quot; in attribute_list and
+                                attribute_list[&quot;handle_list&quot;])
+    
+        # If we were given an handle_list or need to create one
+        if have_handle_list or (use_std_handles and close_fds):
+            if attribute_list is None:
+                attribute_list = startupinfo.lpAttributeList = {}
+            handle_list = attribute_list[&quot;handle_list&quot;] = \
+                list(attribute_list.get(&quot;handle_list&quot;, []))
+    
+            if use_std_handles:
+                handle_list += [int(p2cread), int(c2pwrite), int(errwrite)]
+    
+            handle_list[:] = self._filter_handle_list(handle_list)
+    
+            if handle_list:
+                if not close_fds:
+                    warnings.warn(&quot;startupinfo.lpAttributeList[&apos;handle_list&apos;] &quot;
+                                  &quot;overriding close_fds&quot;, RuntimeWarning)
+    
+                # When using the handle_list we always request to inherit
+                # handles but the only handles that will be inherited are
+                # the ones in the handle_list
+                close_fds = False
+    
+        if shell:
+            startupinfo.dwFlags |= _winapi.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = _winapi.SW_HIDE
+            comspec = os.environ.get(&quot;COMSPEC&quot;, &quot;cmd.exe&quot;)
+            args = &apos;{} /c &quot;{}&quot;&apos;.format (comspec, args)
+    
+        if cwd is not None:
+            cwd = os.fsdecode(cwd)
+    
+        sys.audit(&quot;subprocess.Popen&quot;, executable, args, cwd, env)
+    
+        # Start the process
+        try:
+&gt;           hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                                     # no special security
+                                     None, None,
+                                     int(not close_fds),
+                                     creationflags,
+                                     env,
+                                     cwd,
+                                     startupinfo)
+E                                    FileNotFoundError: [WinError 2] The system cannot find the file specified
+
+..\..\AppData\Local\Programs\Python\Python38-32\lib\subprocess.py:1307: FileNotFoundError
+
+During handling of the above exception, another exception occurred:
+
+self = &lt;test_security.TestSuiteSecurity object at 0x046AC058&gt;
+request = &lt;SubRequest &apos;driver_init&apos; for &lt;Function test_password_limitations[chrome]&gt;&gt;
+
+    @pytest.fixture(params=[&quot;chrome&quot;], scope=&quot;class&quot;)
+    def driver_init(self, request):
+        if request.param == &quot;chrome&quot;:
+            #chrome_options = webdriver.ChromeOptions()
+            # chrome_options.add_argument(&quot;--incognito&quot;)
+            #self.driver = webdriver.Chrome(chrome_options=chrome_options)
+&gt;           self.driver = webdriver.Chrome()
+
+test_framework\common_files\test_web_driver.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\AppData\Local\Programs\Python\Python38-32\lib\site-packages\selenium\webdriver\chrome\webdriver.py:73: in __init__
+    self.service.start()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;selenium.webdriver.chrome.service.Service object at 0x04792820&gt;
+
+    def start(self):
+        &quot;&quot;&quot;
+        Starts the Service.
+    
+        :Exceptions:
+         - WebDriverException : Raised either when it can&apos;t start the service
+           or when it can&apos;t connect to the service
+        &quot;&quot;&quot;
+        try:
+            cmd = [self.path]
+            cmd.extend(self.command_line_args())
+            self.process = subprocess.Popen(cmd, env=self.env,
+                                            close_fds=platform.system() != &apos;Windows&apos;,
+                                            stdout=self.log_file,
+                                            stderr=self.log_file,
+                                            stdin=PIPE)
+        except TypeError:
+            raise
+        except OSError as err:
+            if err.errno == errno.ENOENT:
+&gt;               raise WebDriverException(
+                    &quot;&apos;%s&apos; executable needs to be in PATH. %s&quot; % (
+                        os.path.basename(self.path), self.start_error_message)
+E                       selenium.common.exceptions.WebDriverException: Message: &apos;chromedriver&apos; executable needs to be in PATH. Please see https://sites.google.com/a/chromium.org/chromedriver/home
+
+..\..\AppData\Local\Programs\Python\Python38-32\lib\site-packages\selenium\webdriver\common\service.py:81: WebDriverException</error></testcase></testsuite></testsuites>
