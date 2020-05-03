@@ -1,0 +1,64 @@
+pipeline {
+    agent any 
+    stages {
+        stage('Build application') {  
+            steps {  
+			dir("${WORKSPACE}/allure-results")
+				{deleteDir()}
+			dir("${WORKSPACE}/allure-report")
+				{deleteDir()}
+                git branch: 'master',   
+                url: 'https://github.com/mihaelasas93/Project_2020.git' }
+                }
+        stage('Run user interface tests') { 
+            steps 
+            {catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE')
+            {
+                bat '''
+                python -m pytest -m user_interface_suite --alluredir=allure-results/user --junitxml=raport_user_interface.xml'''
+            }}
+        }
+        stage('Run functional tests') { 
+            steps 
+            {catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE')
+            {
+                bat '''
+                pytest -m functional_suite --alluredir=allure-results/funct --junitxml=raport_functional.xml'''
+            }}
+        }
+        stage('Run security tests') { 
+            steps 
+            {catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE')
+            {
+                bat '''
+                pytest -m security_suite --alluredir=allure-results/security --junitxml=raport_security.xml'''
+            }}
+        }
+    }
+    post {
+        always {
+        dir("${WORKSPACE}/")
+        {
+            junit '**/*.xml'
+            script {
+            allure([ 
+                    includeProperties: false, jdk: '', properties: [], reportBuildPolicy: 'ALWAYS', results: [[path: 'allure-results/']] 
+            ]) }  }
+        }
+        success{
+            emailext body:"Jenkins job-ul este complet.\nVa rugam sa verificati rezultatele aici: http://localhost:8080/job/test/${currentBuild.displayName}/allure/",  
+            subject: "Jenkins job status",  
+            to: '''sas.mihaela3005@gmail.com''' 
+        }
+        unstable{
+            emailext body:"Jenkins job-ul este complet.\nVa rugam sa verificati rezultatele aici: http://localhost:8080/job/test/${currentBuild.displayName}/allure/",  
+            subject: "Jenkins job status",  
+            to: '''sas.mihaela3005@gmail.com''' 
+        }
+        failure{
+            emailext body:"Jenkins job-ul a esuat. Va rugam sa remediati eroarea.",  
+            subject: "Jenkins job status",  
+            to: '''sas.mihaela3005@gmail.com''' 
+        }
+}
+}
